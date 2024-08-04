@@ -5,6 +5,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 from config import DATABASE_CONFIG
 import warnings
 warnings.filterwarnings('ignore')
+import json
     
 def app():
     st.title("搜索对话")
@@ -125,6 +126,7 @@ def app():
 
         df = execute_read_query(search_query)
         def transform_conversation(query):
+            query = json.loads(query)
             conversation = []
             for conv in query:
               if conv['role'] not in ['system','tool'] and conv['content'] != None:
