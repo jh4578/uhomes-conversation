@@ -104,7 +104,7 @@ def app():
 
     
     with st.form("search_form"):
-        chatbot_wx_ids = ['异乡好居-测试']
+        chatbot_wx_ids = ['异乡好居-测试','H']
         chatbot_wx_id = st.selectbox("Chatbot 微信ID", chatbot_wx_ids)
         sche_listing_options = ["Any", "Yes", "No"]
         chatbot_on = st.selectbox("Chatbot_on", options=sche_listing_options)
