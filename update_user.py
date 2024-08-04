@@ -137,6 +137,8 @@ def app():
                     conversation.append({conv['role']:content})
                 return conversation
         df['conversation'] = df['conversation'].apply(transform_conversation)
+        df['conversation'] = df['conversation'].apply(lambda x: json.dumps(x, ensure_ascii=False))
+
         st.write(df)
         st.session_state['search_results'] = df
 
