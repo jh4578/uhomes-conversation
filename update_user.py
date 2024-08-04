@@ -7,7 +7,7 @@ import warnings
 warnings.filterwarnings('ignore')
     
 def app():
-    st.title("推房管理")
+    st.title("搜索对话")
 
     # Function to get database connection
     def get_db_connection():
@@ -102,40 +102,10 @@ def app():
     if 'user_wechat_ids' not in st.session_state:
         st.session_state['user_wechat_ids'] = []
 
-    with st.form("search"):
-        st.write("推房记录")
-        chatbot_wx_ids = get_chatbot_wx_ids()
-        chatbot_wechat_id = st.selectbox("Chatbot 微信ID", ['Any'] + chatbot_wx_ids)
-        fetch_ids = st.form_submit_button("加载客户微信备注")
-
-    if fetch_ids and chatbot_wechat_id:
-        # Fetch and update the user_wechat_ids based on chatbot_wechat_id
-        user_wechat_ids = fetch_user_wechat_ids(chatbot_wechat_id)
-        st.session_state['user_wechat_ids'] = user_wechat_ids
-
-    if st.session_state['user_wechat_ids']:
-        selected_user_wechat_id = st.selectbox("客户微信备注", st.session_state['user_wechat_ids'])
-        if st.button("搜索"):
-            query = """
-            SELECT Unit.building_name, Unit.unit_number, Unit.rent_price, Unit.floorplan, Unit.available_date, Unit.direction, Unit.unit_id 
-            FROM Unit_user
-            JOIN Unit ON Unit_user.unit_id = Unit.unit_id
-            WHERE Unit_user.user_wechat_id = %s AND Unit_user.chatbot_wechat_id = %s
-            """
-            connection = get_db_connection()
-            df = pd.read_sql(query, connection, params=(selected_user_wechat_id, chatbot_wechat_id))
-            connection.close()
-            st.write(df)
-            
-        if st.button("删除记录"):
-            # 调用删除记录的函数
-            delete_record(selected_user_wechat_id, chatbot_wechat_id)
-            # 更新 session state 中的 user_wechat_ids，因为记录已被删除
-            user_wechat_ids = fetch_user_wechat_ids(chatbot_wechat_id)
-            st.session_state['user_wechat_ids'] = user_wechat_ids
+    
     with st.form("search_form"):
-        chatbot_wx_ids = get_chatbot_wx_ids()
-        chatbot_wx_id = st.selectbox("Chatbot 微信ID", ['Any'] + chatbot_wx_ids)
+        chatbot_wx_ids = ['异乡好居-测试']
+        chatbot_wx_id = st.selectbox("Chatbot 微信ID", chatbot_wx_ids)
         sche_listing_options = ["Any", "Yes", "No"]
         chatbot_on = st.selectbox("Chatbot_on", options=sche_listing_options)
         search_user = st.form_submit_button("显示表格")
@@ -144,12 +114,10 @@ def app():
     if search_user:
         search_query = """
         SELECT wechat_id, preference, chatbot_wx_id, chatbot_on, sche_listing, is_group, 
-        no_building, conversation, frequency, last_sent, model2_number, user_id
+        conversation, user_id
         FROM user
-        WHERE 1=1
+        WHERE chatbot_wx_id = '{chatbot_wx_id}'
         """
-        if chatbot_wx_id != 'Any':
-            search_query += f" AND chatbot_wx_id = '{chatbot_wx_id}'"
 
         if chatbot_on != "Any":
             chatbot_on = 1 if chatbot_on == "Yes" else 0
