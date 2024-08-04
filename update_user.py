@@ -126,13 +126,16 @@ def app():
 
         df = execute_read_query(search_query)
         def transform_conversation(query):
-            query = json.loads(query)
-            conversation = []
-            for conv in query:
-              if conv['role'] not in ['system','tool'] and conv['content'] != None:
-                content = conv['content'].replace('\n','')
-                conversation.append({conv['role']:content})
-            return conversation
+            if query is None:
+                return 
+            else:
+                query = json.loads(query)
+                conversation = []
+                for conv in query:
+                  if conv['role'] not in ['system','tool'] and conv['content'] != None:
+                    content = conv['content'].replace('\n','')
+                    conversation.append({conv['role']:content})
+                return conversation
         df['conversation'] = df['conversation'].apply(transform_conversation)
         st.session_state['search_results'] = df
 
