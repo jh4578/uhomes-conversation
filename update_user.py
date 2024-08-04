@@ -137,6 +137,7 @@ def app():
                     conversation.append({conv['role']:content})
                 return conversation
         df['conversation'] = df['conversation'].apply(transform_conversation)
+        st.write(df)
         st.session_state['search_results'] = df
 
     # Display Search Results
