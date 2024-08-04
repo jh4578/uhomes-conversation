@@ -124,6 +124,14 @@ def app():
             search_query += f" AND chatbot_on = {chatbot_on}"
 
         df = execute_read_query(search_query)
+        def transform_conversation(query):
+            conversation = []
+            for conv in query:
+              if conv['role'] not in ['system','tool'] and conv['content'] != None:
+                content = conv['content'].replace('\n','')
+                conversation.append({conv['role']:content})
+            return conversation
+        df['conversation'] = df['conversation'].apply(transform_conversation)
         st.session_state['search_results'] = df
 
     # Display Search Results
@@ -165,7 +173,7 @@ def app():
                             update_parts = []
                             update_values = []
                             for col in updated_df.columns:
-                                if row[col] != df.loc[index, col]:  # 只添加变更的字段
+                                if col not in ['conversation','user_id'] and row[col] != df.loc[index, col]:  # 只添加变更的字段
                                     update_parts.append(f"{col} = %s")
                                     update_values.append(row[col])
                             
